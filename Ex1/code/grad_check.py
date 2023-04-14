@@ -1,6 +1,8 @@
+import copy
+
 import numpy as np
 
-STUDENT={'name': 'YOUR NAME',
+STUDENT={'name': 'Opal Peltzman',
          'ID': 'YOUR ID NUMBER'}
 
 def gradient_check(f, x):
@@ -20,7 +22,15 @@ def gradient_check(f, x):
         ### modify x[ix] with h defined above to compute the numerical gradient.
         ### if you change x, make sure to return it back to its original state for the next iteration.
         ### YOUR CODE HERE:
-        raise NotImplementedError
+        x_plus = copy.deepcopy(x)
+        x_plus[ix] = x_plus[ix] + h
+        f_plus, _ = f(x_plus)
+
+        x_minus = copy.deepcopy(x)
+        x_minus[ix] = x_minus[ix] - h
+        f_minus, _ = f(x_minus)
+
+        numeric_gradient = (f_plus - f_minus) / (2 * h)
         ### END YOUR CODE
 
         # Compare gradients
