@@ -1,6 +1,7 @@
+import math
 import numpy as np
 
-STUDENT={'name': 'YOUR NAME',
+STUDENT={'name': 'Opal Peltzman',
          'ID': 'YOUR ID NUMBER'}
 
 def softmax(x):
@@ -15,6 +16,7 @@ def softmax(x):
     # With a vectorized implementation, the code should be no more than 2 lines.
     #
     # For numeric stability, use the identify you proved in Ex 2 Q1.
+    x = (np.exp(x - np.max(x)) / np.exp(x - np.max(x)).sum())
     return x
     
 
@@ -25,6 +27,7 @@ def classifier_output(x, params):
     """
     W,b = params
     # YOUR CODE HERE.
+    probs = softmax(np.dot(x, W) + b)
     return probs
 
 def predict(x, params):
@@ -52,7 +55,18 @@ def loss_and_gradients(x, y, params):
     """
     W,b = params
     # YOU CODE HERE
-    return loss,[gW,gb]
+    y_hat = classifier_output(x=x, params=params)
+    # y_vec equals 1 in the correct label position (y)
+    y_vec = np.zeros(W.shape[1])
+    y_vec[y] = 1
+
+    loss = -math.log(y_hat[y])
+
+    gb = y_hat - y_vec
+    transposed_gW = np.transpose([gb])
+    gW = transposed_gW.dot((np.array([x]))).transpose()
+
+    return loss, [gW, gb]
 
 def create_classifier(in_dim, out_dim):
     """
