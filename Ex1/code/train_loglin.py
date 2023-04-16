@@ -1,5 +1,9 @@
+import glob
+import os
+
 import loglinear as ll
 import random
+import numpy as np
 
 STUDENT={'name': 'YOUR NAME',
          'ID': 'YOUR ID NUMBER'}
@@ -7,7 +11,7 @@ STUDENT={'name': 'YOUR NAME',
 def feats_to_vec(features):
     # YOUR CODE HERE.
     # Should return a numpy vector of features.
-    return None
+    return np.array(features)
 
 def accuracy_on_dataset(dataset, params):
     good = bad = 0.0
@@ -47,13 +51,41 @@ def train_classifier(train_data, dev_data, num_iterations, learning_rate, params
         print(I, train_loss, train_accuracy, dev_accuracy)
     return params
 
+def set_path(name: str) -> str:
+    """
+    this function creates absolute path for a given file or folder
+    :param name - file or folder name
+    """
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', f'{name}'))
+    return path
+
+def read_data(folder: str, fname: str) -> list:
+    """
+        this function extracts file data
+        :param folder - folder name in order to set the path
+        :param fname - file name to read
+    """
+    data = []
+    path = set_path(folder)
+    file_name = os.path.join(path, fname)
+    with open(file_name, encoding='utf8') as f:
+        file_data = f.readlines()
+
+    for line in file_data:
+        label, text = line.strip().lower().split("\t", 1)
+        data.append((label, text))
+    return data
+
+
 if __name__ == '__main__':
     # YOUR CODE HERE
     # write code to load the train and dev sets, set up whatever you need,
     # and call train_classifier.
     
     # ...
-   
+    learning_rate = 0.01
+    num_iterations = 1000
+    dev_data = read_data(folder='data', fname='dev')
     params = ll.create_classifier(in_dim, out_dim)
     trained_params = train_classifier(train_data, dev_data, num_iterations, learning_rate, params)
 
