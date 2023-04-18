@@ -5,7 +5,7 @@ import loglinear as ll
 import random
 import numpy as np
 
-STUDENT={'name': 'YOUR NAME',
+STUDENT={'name': 'Opal Peltzman',
          'ID': 'YOUR ID NUMBER'}
 
 def feats_to_vec(features):
@@ -16,11 +16,10 @@ def feats_to_vec(features):
 def accuracy_on_dataset(dataset, params):
     good = bad = 0.0
     for label, features in dataset:
-        # YOUR CODE HERE
-        # Compute the accuracy (a scalar) of the current parameters
-        # on the dataset.
-        # accuracy is (correct_predictions / all_predictions)
-        pass
+        if ll.predict(x=features, params=params) == label:
+            good += 1
+        else:
+            bad += 1
     return good / (good + bad)
 
 def train_classifier(train_data, dev_data, num_iterations, learning_rate, params):
@@ -51,6 +50,7 @@ def train_classifier(train_data, dev_data, num_iterations, learning_rate, params
         print(I, train_loss, train_accuracy, dev_accuracy)
     return params
 
+
 def set_path(name: str) -> str:
     """
     this function creates absolute path for a given file or folder
@@ -58,6 +58,7 @@ def set_path(name: str) -> str:
     """
     path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', f'{name}'))
     return path
+
 
 def read_data(folder: str, fname: str) -> list:
     """
@@ -77,6 +78,31 @@ def read_data(folder: str, fname: str) -> list:
     return data
 
 
+def text_to_bigrams(text):
+    return ["%s%s" % (c1,c2) for c1,c2 in zip(text,text[1:])]
+
+
+def create_train_data(train_data: list) -> tuple:
+    """
+        this function creates language clusters dictionary and
+        biagram features dictionary
+        :param train_data - train data from train file provided
+    """
+    lan_classes = {lan: inx for inx, lan in enumerate(set(map(lambda x: x[0], train_data)))}
+    bigram_lists = [bigram for _, bigram in train_data]
+    flat_bigram_set = set([item for sublist in bigram_lists for item in sublist])
+    bigrams_features = {bigram: inx for inx, bigram in enumerate(flat_bigram_set)}
+
+    return lan_classes, bigrams_features
+
+
+def extract_info_from_data(data: list, lan_classes: dict, bigrams_features: dict):
+    """
+      this function creates a list that indicates the features for each language that
+      accrues in the given data list
+    """
+
+
 if __name__ == '__main__':
     # YOUR CODE HERE
     # write code to load the train and dev sets, set up whatever you need,
@@ -85,7 +111,13 @@ if __name__ == '__main__':
     # ...
     learning_rate = 0.01
     num_iterations = 1000
-    dev_data = read_data(folder='data', fname='dev')
+
+    TRAIN = [(l, text_to_bigrams(t)) for l, t in read_data(folder='data', fname='train')]
+    DEV = [(l, text_to_bigrams(t)) for l, t in read_data(folder='data', fname='dev')]
+    _lan_classes, _bigrams_features = create_train_data(train_data=TRAIN)
+
+    # train_data = extract_info_from_data(TRAIN, _lan_classes, _bigrams_features)
+    # dev_data = extract_info_from_data(DEV, _lan_classes, _bigrams_features)
     params = ll.create_classifier(in_dim, out_dim)
     trained_params = train_classifier(train_data, dev_data, num_iterations, learning_rate, params)
 
