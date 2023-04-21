@@ -22,6 +22,7 @@ def accuracy_on_dataset(dataset, params):
             bad += 1
     return good / (good + bad)
 
+
 def train_classifier(train_data, dev_data, num_iterations, learning_rate, params):
     """
     Create and train a classifier, and return the parameters.
@@ -43,6 +44,8 @@ def train_classifier(train_data, dev_data, num_iterations, learning_rate, params
             # YOUR CODE HERE
             # update the parameters according to the gradients
             # and the learning rate.
+            params[0] -= grads[0] * learning_rate
+            params[1] -= grads[1] * learning_rate
 
         train_loss = cum_loss / len(train_data)
         train_accuracy = accuracy_on_dataset(train_data, params)
@@ -96,11 +99,20 @@ def create_train_data(train_data: list) -> tuple:
     return lan_classes, bigrams_features
 
 
-def extract_info_from_data(data: list, lan_classes: dict, bigrams_features: dict):
+def extract_info_from_data(data: list, lan_classes: dict, bigrams_features: dict) -> list:
     """
       this function creates a list that indicates the features for each language that
       accrues in the given data list
     """
+    info = []
+    for [language, biagram] in data:
+        lan_features = np.zeros(len(bigrams_features))
+        for b in biagram:
+            if b in bigrams_features:
+                lan_features[bigrams_features[b]] = 1
+        language_dict = lan_classes[language] if language in lan_classes else -1
+        info.append([language_dict, lan_features])
+    return info
 
 
 if __name__ == '__main__':
@@ -110,14 +122,17 @@ if __name__ == '__main__':
     
     # ...
     learning_rate = 0.01
-    num_iterations = 1000
+    num_iterations = 10
 
     TRAIN = [(l, text_to_bigrams(t)) for l, t in read_data(folder='data', fname='train')]
     DEV = [(l, text_to_bigrams(t)) for l, t in read_data(folder='data', fname='dev')]
     _lan_classes, _bigrams_features = create_train_data(train_data=TRAIN)
 
-    # train_data = extract_info_from_data(TRAIN, _lan_classes, _bigrams_features)
-    # dev_data = extract_info_from_data(DEV, _lan_classes, _bigrams_features)
+    train_data = extract_info_from_data(TRAIN, _lan_classes, _bigrams_features)
+    dev_data = extract_info_from_data(DEV, _lan_classes, _bigrams_features)
+    in_dim = len(_bigrams_features)
+    out_dim = len(_lan_classes)
+
     params = ll.create_classifier(in_dim, out_dim)
     trained_params = train_classifier(train_data, dev_data, num_iterations, learning_rate, params)
 
