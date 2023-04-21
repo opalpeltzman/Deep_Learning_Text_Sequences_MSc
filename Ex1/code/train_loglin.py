@@ -115,6 +115,14 @@ def extract_info_from_data(data: list, lan_classes: dict, bigrams_features: dict
     return info
 
 
+def predicting_test_data(lan_classes: dict, trained_params, output_file_name: str, test_data: list):
+    inv_lan_classes = {v: k for k, v in lan_classes.items()}
+    pred = [inv_lan_classes[ll.predict(x=data, params=trained_params)] for _, data in test_data]
+    print(pred)
+    with open(output_file_name, 'w') as f:
+        f.write('\n'.join(pred))
+
+
 if __name__ == '__main__':
     # YOUR CODE HERE
     # write code to load the train and dev sets, set up whatever you need,
@@ -126,13 +134,18 @@ if __name__ == '__main__':
 
     TRAIN = [(l, text_to_bigrams(t)) for l, t in read_data(folder='data', fname='train')]
     DEV = [(l, text_to_bigrams(t)) for l, t in read_data(folder='data', fname='dev')]
+    TEST = [(l, text_to_bigrams(t)) for l, t in read_data(folder='data', fname='test')]
     _lan_classes, _bigrams_features = create_train_data(train_data=TRAIN)
 
     train_data = extract_info_from_data(TRAIN, _lan_classes, _bigrams_features)
     dev_data = extract_info_from_data(DEV, _lan_classes, _bigrams_features)
+    test_data = extract_info_from_data(TEST, _lan_classes, _bigrams_features)
     in_dim = len(_bigrams_features)
     out_dim = len(_lan_classes)
 
     params = ll.create_classifier(in_dim, out_dim)
     trained_params = train_classifier(train_data, dev_data, num_iterations, learning_rate, params)
+
+    predicting_test_data(lan_classes=_lan_classes, trained_params=trained_params,
+                         output_file_name='test.pred', test_data=test_data)
 
