@@ -62,6 +62,11 @@ def create_classifier(in_dim, hid_dim, out_dim):
     a flat list of 4 elements, W, b, U, b_tag.
     """
 
+    b = np.zeros(hid_dim)
+    b_tag = np.zeros(out_dim)
+
+    W = np.random.randn(in_dim, hid_dim) / np.sqrt(in_dim)
+    U = np.random.randn(hid_dim, out_dim) / np.sqrt(hid_dim)
 
     params = [W, b, U, b_tag]
     return params

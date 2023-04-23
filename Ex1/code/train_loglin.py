@@ -94,8 +94,17 @@ def create_train_data(train_data: list) -> tuple:
     lan_classes = {lan: inx for inx, lan in enumerate(set(map(lambda x: x[0], train_data)))}
     bigram_lists = [bigram for _, bigram in train_data]
     flat_bigram_set = set([item for sublist in bigram_lists for item in sublist])
-    bigrams_features = {bigram: inx for inx, bigram in enumerate(flat_bigram_set)}
 
+    # uncomment for testing letter unigram (Q5.2) ----------------------------------
+    # flat_unigram_set = []
+    # for bigram in flat_bigram_set:
+    #     flat_unigram_set.extend(list(bigram))
+    # flat_unigram_set = set(flat_unigram_set)
+    # unigrams_features = {unigram: inx for inx, unigram in enumerate(flat_unigram_set)}
+    # return lan_classes, unigrams_features
+    # ------------------------------------------------------------------------------
+
+    bigrams_features = {bigram: inx for inx, bigram in enumerate(flat_bigram_set)}
     return lan_classes, bigrams_features
 
 
@@ -118,7 +127,7 @@ def extract_info_from_data(data: list, lan_classes: dict, bigrams_features: dict
 def predicting_test_data(lan_classes: dict, trained_params, output_file_name: str, test_data: list):
     inv_lan_classes = {v: k for k, v in lan_classes.items()}
     pred = [inv_lan_classes[ll.predict(x=data, params=trained_params)] for _, data in test_data]
-    print(pred)
+
     with open(output_file_name, 'w') as f:
         f.write('\n'.join(pred))
 
@@ -129,8 +138,8 @@ if __name__ == '__main__':
     # and call train_classifier.
     
     # ...
-    learning_rate = 0.01
-    num_iterations = 10
+    learning_rate = 0.001
+    num_iterations = 100
 
     TRAIN = [(l, text_to_bigrams(t)) for l, t in read_data(folder='data', fname='train')]
     DEV = [(l, text_to_bigrams(t)) for l, t in read_data(folder='data', fname='dev')]

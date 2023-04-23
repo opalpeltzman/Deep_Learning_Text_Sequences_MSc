@@ -1,6 +1,7 @@
 # This file provides code which you may or may not find helpful.
 # Use it if you want, or ignore it.
 import random
+
 def read_data(fname):
     data = []
     for line in file(fname):

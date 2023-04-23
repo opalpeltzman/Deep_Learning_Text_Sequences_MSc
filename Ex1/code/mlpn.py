@@ -1,10 +1,18 @@
 import numpy as np
+import loglinear as ll
+import math
 
-STUDENT={'name': 'YOUR NAME',
+STUDENT={'name': 'Opal Peltzman',
          'ID': 'YOUR ID NUMBER'}
 
 def classifier_output(x, params):
     # YOUR CODE HERE.
+    h_l = x
+    for inx in range(0, len(params), 2):
+        W, b = params[inx], params[inx+1]
+        h_l = np.tanh(np.dot(h_l, W) + b)
+
+    probs = ll.classifier_output(h_l, params[-2:])
     return probs
 
 def predict(x, params):
@@ -28,7 +36,29 @@ def loss_and_gradients(x, y, params):
     you should not have gW2 and gb2.)
     """
     # YOU CODE HERE
-    return ...
+    U, b_tag = params[-2:]
+    y_hat = classifier_output(x=x, params=params)
+    y_vec = np.zeros(U.shape[1])
+    y_vec[y] = 1
+
+    loss = -math.log(y_hat[y])
+    zn = [x]
+    an = [x]
+    for inx in range(0, len(params), 2):
+        W, b = params[inx], params[inx + 1]
+        zn.append(zn[-1].dot(W) + b)
+        an.append(np.tanh(zn[-1]))  # output layer n
+
+    gb_tag = y_hat - y_vec
+    gU = np.array([an[-2]]).transpose().dot(np.array([gb_tag]))
+    grads = [gU, gb_tag]
+
+    for inx in range(0, len(params), 2)[::-1]:
+        gb = grads[1].dot(params[inx + 1].transpose()) * (1 - np.power(an[inx + 1], 2))
+        gW = np.array([zn[inx]]).transpose().dot(np.array([gb]))
+        grads.insert(0, gb)
+        grads.insert(0, gW)
+    return loss, grads
 
 def create_classifier(dims):
     """
@@ -51,5 +81,8 @@ def create_classifier(dims):
     second layer, and so on.
     """
     params = []
+    for i in range(len(dims) - 1):
+        params.append(np.random.randn(dims[i], dims[i+1]) / np.sqrt(dims[i]))
+        params.append(np.zeros(dims[i+1]))
     return params
 

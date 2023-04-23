@@ -45,10 +45,10 @@ def train_classifier(train_data, dev_data, num_iterations, learning_rate, params
             # YOUR CODE HERE
             # update the parameters according to the gradients
             # and the learning rate.
-            params[0][0] -= grads[0][0] * learning_rate
-            params[0][1] -= grads[0][1] * learning_rate
-            params[1][0] -= grads[1][0] * learning_rate
-            params[1][1] -= grads[1][1] * learning_rate
+            params[0] -= grads[0] * learning_rate
+            params[1] -= grads[1] * learning_rate
+            params[2] -= grads[2] * learning_rate
+            params[3] -= grads[3] * learning_rate
 
         train_loss = cum_loss / len(train_data)
         train_accuracy = accuracy_on_dataset(train_data, params)
@@ -97,8 +97,17 @@ def create_train_data(train_data: list) -> tuple:
     lan_classes = {lan: inx for inx, lan in enumerate(set(map(lambda x: x[0], train_data)))}
     bigram_lists = [bigram for _, bigram in train_data]
     flat_bigram_set = set([item for sublist in bigram_lists for item in sublist])
-    bigrams_features = {bigram: inx for inx, bigram in enumerate(flat_bigram_set)}
 
+    # uncomment for testing letter unigram (Q5.2) ----------------------------------
+    # flat_unigram_set = []
+    # for bigram in flat_bigram_set:
+    #     flat_unigram_set.extend(list(bigram))
+    # flat_unigram_set = set(flat_unigram_set)
+    # unigrams_features = {unigram: inx for inx, unigram in enumerate(flat_unigram_set)}
+    # return lan_classes, unigrams_features
+    # ------------------------------------------------------------------------------
+
+    bigrams_features = {bigram: inx for inx, bigram in enumerate(flat_bigram_set)}
     return lan_classes, bigrams_features
 
 
@@ -132,8 +141,8 @@ if __name__ == '__main__':
     # and call train_classifier.
 
     # ...
-    learning_rate = 0.01
-    num_iterations = 10
+    learning_rate = 0.001
+    num_iterations = 100
 
     TRAIN = [(l, text_to_bigrams(t)) for l, t in read_data(folder='data', fname='train')]
     DEV = [(l, text_to_bigrams(t)) for l, t in read_data(folder='data', fname='dev')]
